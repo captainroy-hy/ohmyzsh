@@ -51,9 +51,8 @@ esac
   # history and have new information.
   # This is defined using a Unicode escape sequence so it is unambiguously readable, regardless of
   # what font the user is viewing this source code in. Do not replace the
-  # escape sequence with a single literal character.
-  # Do not change this! Do not make it '\u2b80'; that is the old, wrong code point.
-  SEGMENT_SEPARATOR=$'\ue0b0'
+  SEGMENT_SEPARATOR=$emoji[dog]
+  # SEGMENT_SEPARATOR=$'\u+1f409'
 }
 
 # Begin a segment
@@ -66,7 +65,7 @@ prompt_segment() {
   if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
     echo -n " %{$bg%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR%{$fg%} "
   else
-    echo -n "%{$bg%}%{$fg%} "
+    echo -n "🐳 %{$bg%}%{$fg%} "
   fi
   CURRENT_BG=$1
   [[ -n $3 ]] && echo -n $3
@@ -75,12 +74,16 @@ prompt_segment() {
 # End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
-    echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+    echo -n " %{%k%F{$CURRENT_BG}%}"
+    # echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
   else
     echo -n "%{%k%}"
   fi
   echo -n "%{%f%}"
   CURRENT_BG=''
+  #Adds the new line and ➜ as the start character.
+  echo -e "\n \033[32m➜\033[0m "
+  # printf "\n ➜ " ;
 }
 
 ### Prompt components
@@ -88,8 +91,9 @@ prompt_end() {
 
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
-  if [[ "$USERNAME" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)%n@%m"
+  if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+    prompt_segment black default "%(!.%{%F{yellow}%}.)%n"
+    # prompt_segment black default "%(!.%{%F{yellow}%}.)%n@%m"
   fi
 }
 
@@ -144,7 +148,7 @@ prompt_git() {
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
     zstyle ':vcs_info:*' stagedstr '✚'
-    zstyle ':vcs_info:*' unstagedstr '±'
+    zstyle ':vcs_info:*' unstagedstr '●'
     zstyle ':vcs_info:*' formats ' %u%c'
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
@@ -247,7 +251,7 @@ prompt_status() {
 #   ends in '-prod'
 # - displays black on green otherwise
 prompt_aws() {
-  [[ -z "$AWS_PROFILE" || "$SHOW_AWS_PROMPT" = false ]] && return
+  [[ -z "$AWS_PROFILE" ]] && return
   case "$AWS_PROFILE" in
     *-prod|*production*) prompt_segment red yellow  "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
     *) prompt_segment green black "AWS: ${AWS_PROFILE:gs/%/%%}" ;;
@@ -257,15 +261,16 @@ prompt_aws() {
 ## Main prompt
 build_prompt() {
   RETVAL=$?
-  prompt_status
+  # prompt_status
   prompt_virtualenv
-  prompt_aws
-  prompt_context
+  # prompt_aws
+  # prompt_context
   prompt_dir
   prompt_git
-  prompt_bzr
-  prompt_hg
+  # prompt_bzr
+  # prompt_hg
   prompt_end
 }
 
-PROMPT='%{%f%b%k%}$(build_prompt) '
+# PROMPT='$emoji[dog_face]%{%f%b%k%}$(build_prompt) '
+PROMPT='$emoji[dog_face]$(build_prompt)'
